@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plant Identification</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+        body {
+            background: linear-gradient(90deg, #e0f7fa, #ffffff);
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            padding: 40px;
+            text-align: center;
+        }
+        h1 {
+            color: #4caf50;
+            font-size: 32px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        .form-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        .form-container input[type="file"] {
+            display: none;
+        }
+        /* Updated label styling for the Choose Plant Image button */
+        .form-container label {
+            background: #4caf50; /* Match button color */
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            color: white;
+            font-weight: 600;
+            transition: background 0.3s ease, transform 0.3s ease;
+            display: inline-block; /* Ensure it's treated like a block for better hover effects */
+        }
+        /* Hover effect for label */
+        .form-container label:hover {
+            background: #43a047; /* Match button hover color */
+            transform: scale(1.05); /* Add scaling effect */
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.3s;
+        }
+        button:hover {
+            background: #43a047;
+            transform: scale(1.05);
+        }
+        .result {
+            margin-top: 30px;
+        }
+        .result h2 {
+            font-size: 24px;
+            color: #4caf50;
+            margin-bottom: 20px;
+        }
+        .result img {
+            width: 200px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, opacity 0.3s;
+        }
+        .result img:hover {
+            transform: scale(1.05);
+            opacity: 0.9;
+        }
+        /* Loading Animation */
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 5px solid #4caf50;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin-top: -25px;
+            margin-left: -25px;
+            z-index: 10;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        /* File Preview */
+        .file-preview {
+            margin-top: 20px;
+            display: none;
+        }
+        .file-preview img {
+            max-width: 100%;
+            height: auto;
+            border: 2px solid #4caf50;
+            border-radius: 5px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Plant Identification</h1>
+        <div class="form-container">
+            <form id="upload-form" action="/" method="post" enctype="multipart/form-data">
+                <label for="file-upload">Choose a Plant Image</label>
+                <input type="file" name="file" id="file-upload" accept="image/*" required>
+                <button type="submit">Upload and Predict</button>
+                <div class="loader" id="loader" style="display:none;"></div>
+                <div class="file-preview" id="file-preview">
+                    <img id="selected-image" src="" alt="Selected Image">
+                </div>
+            </form>
+        </div>
+
+        {% if prediction %}
+        <div class="result">
+            <h2>Prediction: {{ prediction }}</h2>
+            <img src="{{ url_for('send_file', filename=image_file) }}" alt="Uploaded Image">
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('file-upload');
+        const filePreview = document.getElementById('file-preview');
+        const selectedImage = document.getElementById('selected-image');
+        const loader = document.getElementById('loader');
+        const form = document.getElementById('upload-form');
+
+        fileInput.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    selectedImage.src = e.target.result;
+                    filePreview.style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        form.addEventListener('submit', function () {
+            loader.style.display = 'block';
+        });
+    </script>
+</body>
+</html>
